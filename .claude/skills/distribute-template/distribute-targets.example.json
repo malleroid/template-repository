@@ -1,0 +1,21 @@
+{
+  "basePath": "/path/to/your/repos",
+  "targets": [
+    {
+      "repo": "example-repo",
+      "files": [
+        "renovate.json",
+        "biome.json",
+        ".editorconfig",
+        ".github/PULL_REQUEST_TEMPLATE.md",
+        ".github/ISSUE_TEMPLATE/bug_report.md",
+        ".github/ISSUE_TEMPLATE/feature_request.md",
+        ".dockerignore",
+        {
+          "source": ".dockerignore",
+          "targets": ["subdir1/.dockerignore", "subdir2/.dockerignore"]
+        }
+      ]
+    }
+  ]
+}
