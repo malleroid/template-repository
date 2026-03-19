@@ -8,3 +8,6 @@ build/
 # Environment
 .env
 .env.*
+
+# Distribute template config (contains private repo names and local paths)
+.claude/skills/distribute-template/distribute-targets.json
