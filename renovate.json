@@ -1,13 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:best-practices",
-    ":semanticCommits",
-    "customManagers:biomeVersions"
-  ],
-  "labels": [
-    "dependencies"
-  ],
+  "extends": ["config:best-practices", ":semanticCommits", "customManagers:biomeVersions"],
+  "labels": ["dependencies"],
   "timezone": "Asia/Tokyo",
   "vulnerabilityAlerts": {
     "enabled": true,
