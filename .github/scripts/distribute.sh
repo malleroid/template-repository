@@ -183,7 +183,9 @@ process_target() {
   git -C "$repo_dir" commit -m "$PR_TITLE" >/dev/null
   git -C "$repo_dir" push -u origin "$SYNC_BRANCH" --force >/dev/null 2>&1
 
-  if gh pr view "$SYNC_BRANCH" --repo "$OWNER/$repo" >/dev/null 2>&1; then
+  local open_count
+  open_count=$(gh pr list --repo "$OWNER/$repo" --head "$SYNC_BRANCH" --state open --json number --jq 'length' 2>/dev/null || echo 0)
+  if [[ "$open_count" -gt 0 ]]; then
     echo "  ✅ PR updated"
   else
     gh pr create \
