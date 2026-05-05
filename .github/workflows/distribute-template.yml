@@ -1,0 +1,65 @@
+name: Distribute template
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Single target repo (leave empty to run all)"
+        required: false
+        default: ""
+      mode:
+        description: "Run mode"
+        type: choice
+        options:
+          - dry-run
+          - apply
+        default: dry-run
+      full_sync:
+        description: "Process all files (skip the changed-files filter)"
+        type: boolean
+        default: false
+
+jobs:
+  distribute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute changed paths
+        id: changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          full="${{ inputs.full_sync || 'false' }}"
+          if [[ "$full" == "true" ]]; then
+            changed=""
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            base="${{ github.event.before }}"
+            if [[ "$base" =~ ^0+$ ]]; then
+              changed=""
+            else
+              changed=$(gh api "repos/${{ github.repository }}/compare/${base}...${{ github.sha }}" --jq '.files[].filename')
+            fi
+          else
+            changed=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}" --jq '.files[].filename')
+          fi
+          {
+            echo "files<<__EOF__"
+            echo "$changed"
+            echo "__EOF__"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run distribution
+        env:
+          DISTRIBUTE_TARGETS: ${{ secrets.DISTRIBUTE_TARGETS }}
+          GH_TOKEN: ${{ secrets.DISTRIBUTE_TOKEN }}
+          MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'apply' }}
+          TARGET: ${{ inputs.target }}
+          CHANGED_FILES: ${{ steps.changes.outputs.files }}
+        run: bash .github/scripts/distribute.sh

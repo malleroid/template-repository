@@ -1,0 +1,9 @@
+{
+  "default": "overwrite",
+  "files": {
+    "biome.json": "skip",
+    "renovate.json": "skip",
+    ".dockerignore": "skip",
+    ".gitignore": "skip"
+  }
+}
