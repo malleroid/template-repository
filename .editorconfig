@@ -63,6 +63,9 @@ indent_size = 2
 [*.{sh,bash,zsh}]
 indent_size = 2
 
+[*.{tf,hcl,tfvars}]
+indent_size = 2
+
 [Dockerfile*]
 indent_size = 2
 
