@@ -30,6 +30,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Register repo-name masks
+        env:
+          DISTRIBUTE_TARGETS: ${{ secrets.DISTRIBUTE_TARGETS }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          set -euo pipefail
+          while IFS= read -r r; do
+            if [[ -n "$r" ]]; then
+              echo "::add-mask::$r"
+            fi
+          done < <(jq -r '.targets[].repo' <<<"$DISTRIBUTE_TARGETS")
+          if [[ -n "${TARGET:-}" ]]; then
+            echo "::add-mask::$TARGET"
+          fi
+
       - name: Compute changed paths
         id: changes
         env:
