@@ -191,7 +191,8 @@ process_target() {
       --base main \
       --head "$SYNC_BRANCH" \
       --title "$PR_TITLE" \
-      --body "$PR_BODY" >/dev/null
+      --body "$PR_BODY" \
+      --assignee "@me" >/dev/null
     echo "  ✅ PR created"
   fi
 }
