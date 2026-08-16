@@ -181,7 +181,18 @@ process_target() {
 
   git -C "$repo_dir" add -A
   git -C "$repo_dir" commit -m "$PR_TITLE" >/dev/null
-  git -C "$repo_dir" push -u origin "$SYNC_BRANCH" --force-with-lease >/dev/null 2>&1
+
+  # --depth=1 implies --single-branch, so the sync branch has no remote-tracking
+  # ref and --force-with-lease would reject the push as stale. Fails on the first
+  # run for a repo, where the branch does not exist remotely yet.
+  git -C "$repo_dir" fetch --depth=1 --quiet origin \
+    "+refs/heads/$SYNC_BRANCH:refs/remotes/origin/$SYNC_BRANCH" 2>/dev/null || true
+
+  # Checked explicitly: set -e does not apply inside a function called with ||.
+  if ! git -C "$repo_dir" push -u origin "$SYNC_BRANCH" --force-with-lease >/dev/null; then
+    echo "  ❌ push failed"
+    return 1
+  fi
 
   local open_count
   open_count=$(gh pr list --repo "$OWNER/$repo" --head "$SYNC_BRANCH" --state open --json number --jq 'length' 2>/dev/null || echo 0)
